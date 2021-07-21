@@ -1,6 +1,8 @@
 import React, {FC} from 'react';
 import styled from 'styled-components/native';
 import colors from '../constants/colors';
+import {DEFAULT_USER} from '../constants/images';
+import {GET_IMAGE} from '../constants/urls';
 
 interface GenreItems {
   url: string;
@@ -9,7 +11,7 @@ interface GenreItems {
 const Credit: FC<GenreItems> = ({url, name}) => {
   return (
     <ContainerCredit>
-      <CircleImage source={{uri: url}} />
+      <CircleImage source={url ? {uri: GET_IMAGE + url} : DEFAULT_USER} />
       <CreditName>{name}</CreditName>
     </ContainerCredit>
   );
@@ -25,7 +27,7 @@ const CircleImage = styled.Image`
   width: 70px;
   border-radius: 35px;
   resize-mode: cover;
-  background-color: red;
+  background-color: ${colors.gray};
 `;
 const CreditName = styled.Text`
   color: ${colors.black};

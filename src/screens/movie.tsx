@@ -1,4 +1,4 @@
-import React, {FC} from 'react';
+import React, {FC, useEffect, useState} from 'react';
 import {ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 import Credit from '../components/credit';
@@ -6,58 +6,70 @@ import Genre from '../components/genre';
 import ImageCard from '../components/imageCard';
 import colors from '../constants/colors';
 import Icon from 'react-native-vector-icons/Feather';
+import {get} from 'lodash';
+import {BASE_URL, GET_CREDITS, API_KEY} from '../constants/urls';
+
 interface MovieItem {
-  navigation: any;
+  props: any;
 }
-const Movie: FC<MovieItem> = ({navigation}) => {
-  const genres: string[] = ['Action', 'Adventure', 'Comedy'];
+const Movie: FC<MovieItem> = props => {
+  const {navigation, route} = props;
+  const {title, genres, image, overview, rate, id} = get(route, 'params');
+
+  const [credits, setCredits] = useState([]);
+  function getCredits(): void {
+    fetch(`${BASE_URL + GET_CREDITS.replace('id', id) + API_KEY}`)
+      .then(response => response.json())
+      .then(json => setCredits([...get(json, 'cast'), ...get(json, 'crew')]))
+      .catch(e => console.log(e));
+  }
+  useEffect(() => {
+    let isSubscribed: boolean = true;
+    if (isSubscribed) getCredits();
+    return () => (isSubscribed = false);
+  }, []);
   return (
     <Container>
+      <IconContainer onPress={() => navigation.pop()}>
+        <Icon name={'chevron-left'} color={colors.black} size={25} />
+      </IconContainer>
       <ScrollView>
-        <Icon
-          name={'chevron-left'}
-          color={colors.black}
-          size={25}
-          onPress={() => navigation.goBack()}
-        />
         <ImageCard
           width={'100%'}
           height={'270px'}
-          url={
-            'https://i.pinimg.com/originals/bc/d5/c9/bcd5c9519581acc60bd60a429ab0c88f.jpg'
-          }
+          url={image}
+          style={{marginTop: 30}}
         />
-        <MovieTitle>Wonder Women 1984</MovieTitle>
-        <MovieRate>85%</MovieRate>
+        <MovieTitle>{title}</MovieTitle>
+        <MovieRate>{rate}%</MovieRate>
         <SubContainer>
           <Header>Overview</Header>
-          <OverviewDescreption>
-            Wonder Women 1984Wonder Women 1984Wonder Women 1984Wonder Women
-            1984Wonder Women 1984Wonder Women 1984Wonder Women 1984 Wonder Women
-            1984Wonder Women 1984Wonder Women 1984Wonder Women 1984 Wonder Women
-            1984
-          </OverviewDescreption>
+          <OverviewDescreption>{overview}</OverviewDescreption>
         </SubContainer>
         <SubContainer>
           <Header>Genres</Header>
           <GenresContainer>
-            {genres.map((genre, index) => (
-              <Genre key={index} title={genre} />
-            ))}
+            {genres.length != 0 ? (
+              genres.map((genre, index) => <Genre key={index} title={genre} />)
+            ) : (
+              <NotFoundText>Not Found Genres!</NotFoundText>
+            )}
           </GenresContainer>
         </SubContainer>
         <SubContainer>
           <Header>Credits</Header>
           <ScrollView horizontal>
-            {genres.map((genre, index) => (
-              <Credit
-                key={index}
-                url={
-                  'https://i.pinimg.com/originals/bc/d5/c9/bcd5c9519581acc60bd60a429ab0c88f.jpg'
-                }
-                name={'hazem'}
-              />
-            ))}
+            {credits.length != 0 ? (
+              credits.map((credit, index) => (
+                <Credit
+                  key={index}
+                  url={get(credit, 'profile_path')}
+                  name={get(credit, 'name')}
+                />
+              ))
+            ) : (
+              <NotFoundText>Not Found Credits!</NotFoundText>
+            )}
           </ScrollView>
         </SubContainer>
       </ScrollView>
@@ -68,6 +80,13 @@ const Container = styled.View`
   flex: 1;
   padding: 25px;
   background-color: ${colors.white};
+`;
+const IconContainer = styled.TouchableOpacity`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 10px;
+  z-index: 10;
 `;
 const MovieTitle = styled.Text`
   color: ${colors.black};
@@ -96,7 +115,11 @@ const SubContainer = styled.View`
 const GenresContainer = styled.View`
   flex-direction: row;
   align-items: center;
-  width: 84%;
   flex-wrap: wrap;
 `;
+const NotFoundText = styled.Text`
+  color: ${colors.Obacityblack1};
+  font-weight: bold;
+`;
+
 export default Movie;
