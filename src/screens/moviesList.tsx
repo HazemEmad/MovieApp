@@ -6,6 +6,7 @@ import Tab from '../components/tab';
 import colors from '../constants/colors';
 import {get} from 'lodash';
 import {BASE_URL, GET_MOVIES, API_KEY, GET_GENRE} from '../constants/urls';
+import Icon from 'react-native-vector-icons/Feather';
 
 const MovieList: FC = props => {
   const titleTabs: Object[] = [
@@ -21,16 +22,13 @@ const MovieList: FC = props => {
   const [load, setLoad] = useState(true);
   const list = useRef(null);
 
-  function getMovies(concat: boolean, tap: string, p: number): void {
+  function getMovies(tap: string, p: number): void {
     setLoad(true);
     fetch(`${BASE_URL + GET_MOVIES + tap + API_KEY}&page=${p}`)
       .then(response => response.json())
       .then(json => {
-        if (concat) setMovies([...movies, ...get(json, 'results')]);
-        else {
-          setMovies(get(json, 'results'));
-          list.current.scrollToOffset({animated: true, offset: 0});
-        }
+        setMovies(get(json, 'results'));
+        list.current.scrollToOffset({animated: true, offset: 0});
         setLastPage(get(json, 'total_pages'));
         setLoad(false);
       })
@@ -46,34 +44,44 @@ const MovieList: FC = props => {
 
   useEffect(() => {
     getGenres();
-    getMovies(false, 'upcoming', 1);
+    getMovies('upcoming', 1);
   }, []);
 
-  function changePage(): void {
-    if (page < lastPage) setPage(page + 1);
+  function changePage(addOrMinus: boolean): void {
+    if (addOrMinus) {
+      if (page < lastPage) setPage(page + 1);
+    } else {
+      if (page > 1) setPage(page - 1);
+    }
   }
-  const renderFooter = () => {
-    return (
-      <FooterContainer>
-        {page == lastPage || movies.length == 0 ? null : (
-          <LoadingText>Load More...</LoadingText>
-        )}
-      </FooterContainer>
-    );
-  };
+  const renderItems = ({item}) => (
+    <FilmCard
+      navigation={get(props, 'navigation')}
+      title={get(item, 'title')}
+      releaseDate={get(item, 'release_date')}
+      image={get(item, 'backdrop_path')}
+      rate={parseFloat(get(item, 'vote_average')) * 10}
+      movieGenres={get(item, 'genre_ids')}
+      overview={get(item, 'overview')}
+      id={get(item, 'id')}
+      allGenres={genres}
+    />
+  );
   function _onPressTap(tap: string): void {
     setSelectedTab(tap);
     setMovies(selectedTab == tap ? movies : []);
-    getMovies(false, tap, 1);
+    setPage(1);
+    getMovies(tap, 1);
   }
   function _onRefresh(): void {
     setPage(1);
-    getMovies(false, selectedTab, 1);
+    getMovies(selectedTab, 1);
   }
-  function _onEndReached(): void {
-    changePage();
-    getMovies(true, selectedTab, page + 1);
+  function changeCurrPage(addOrMinus: boolean): void {
+    changePage(addOrMinus);
+    getMovies(selectedTab, addOrMinus ? page + 1 : page - 1);
   }
+
   return (
     <Container>
       <Title>Movies</Title>
@@ -90,28 +98,33 @@ const MovieList: FC = props => {
       <FlatList
         ref={list}
         data={movies}
+        style={{marginBottom: 40}}
         keyExtractor={(item, index) => index.toString()}
         onRefresh={_onRefresh}
         refreshing={load}
-        ListFooterComponent={renderFooter}
-        onEndReached={_onEndReached}
-        onEndReachedThreshold={0.1}
-        renderItem={({item}) => {
-          return (
-            <FilmCard
-              navigation={get(props, 'navigation')}
-              title={get(item, 'title')}
-              releaseDate={get(item, 'release_date')}
-              image={get(item, 'backdrop_path')}
-              rate={parseFloat(get(item, 'vote_average')) * 10}
-              movieGenres={get(item, 'genre_ids')}
-              overview={get(item, 'overview')}
-              id={get(item, 'id')}
-              allGenres={genres}
-            />
-          );
-        }}
+        renderItem={renderItems}
       />
+      <ChangePageLeftContainer
+        disabled={page == 1}
+        onPress={() => changeCurrPage(false)}>
+        <Icon
+          name={'chevron-left'}
+          color={page == 1 ? colors.Obacityblack2 : colors.green}
+          size={40}
+        />
+        <PageText last={page == 1}>back</PageText>
+      </ChangePageLeftContainer>
+      <Page>{page}</Page>
+      <ChangePageRightContainer
+        disabled={page == lastPage}
+        onPress={() => changeCurrPage(true)}>
+        <PageText last={page == lastPage}>next</PageText>
+        <Icon
+          name={'chevron-right'}
+          color={page == lastPage ? colors.Obacityblack2 : colors.green}
+          size={40}
+        />
+      </ChangePageRightContainer>
     </Container>
   );
 };
@@ -132,13 +145,31 @@ const TabsContainer = styled.View`
   justify-content: space-between;
   align-items: center;
 `;
-const FooterContainer = styled.View`
-  padding-vertical: 5px;
-  justify-content: center;
+const ChangePageLeftContainer = styled.TouchableOpacity`
+  position: absolute;
+  left: 10px;
+  bottom: 20px;
+  z-index: 10;
+  flex-direction: row;
   align-items: center;
 `;
-const LoadingText = styled.Text`
-  color: ${colors.green};
+const ChangePageRightContainer = styled.TouchableOpacity`
+  position: absolute;
+  right: 10px;
+  bottom: 20px;
+  z-index: 10;
+  flex-direction: row;
+  align-items: center;
+`;
+const PageText = styled.Text`
+  color: ${props => (props.last ? colors.Obacityblack2 : colors.green)};
+`;
+const Page = styled.Text`
+  color: ${colors.Obacityblack2};
+  position: absolute;
   font-weight: bold;
+  font-size: 17px;
+  align-self: center;
+  bottom: 25px;
 `;
 export default MovieList;
