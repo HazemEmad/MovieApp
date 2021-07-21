@@ -2,9 +2,10 @@ import React, {FC} from 'react';
 import styled from 'styled-components/native';
 
 const Movie: FC = () => {
-  return <Text>Movie</Text>;
+  return <Container></Container>;
 };
-const Text = styled.Text`
-  color: red;
+const Container = styled.View`
+  flex: 1;
+  padding: 25px;
 `;
 export default Movie;
