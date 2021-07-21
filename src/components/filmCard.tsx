@@ -3,11 +3,13 @@ import styled from 'styled-components/native';
 import colors from '../constants/colors';
 import ImageCard from './imageCard';
 import Genre from './genre';
-
-const FilmCard: FC = () => {
+interface FilmItem {
+  navigation: any;
+}
+const FilmCard: FC<FilmItem> = ({navigation}) => {
   const genres: string[] = ['Action', 'Adventure', 'Comedy'];
   return (
-    <ContainerCard>
+    <ContainerCard onPress={() => navigation.navigate('Movie')}>
       <ImageCard
         width={'85px'}
         height={'100px'}
@@ -28,7 +30,7 @@ const FilmCard: FC = () => {
     </ContainerCard>
   );
 };
-const ContainerCard = styled.View`
+const ContainerCard = styled.TouchableOpacity`
   background-color: ${colors.white};
   elevation: 2;
   border-radius: 5px;

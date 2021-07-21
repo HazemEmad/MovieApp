@@ -3,8 +3,9 @@ import styled from 'styled-components/native';
 import FilmCard from '../components/filmCard';
 import Tab from '../components/tab';
 import colors from '../constants/colors';
+import {get} from 'lodash';
 
-const MovieList: FC = () => {
+const MovieList: FC = props => {
   const titleTabs: string[] = ['Upcoming', 'Popular', 'Top Rated'];
   const [selectedTab, setSelectedTab] = useState('Upcoming');
   return (
@@ -20,13 +21,14 @@ const MovieList: FC = () => {
           />
         ))}
       </TabsContainer>
-      <FilmCard />
+      <FilmCard navigation={get(props, 'navigation')} />
     </Container>
   );
 };
 const Container = styled.View`
   flex: 1;
   padding: 25px;
+  background-color: ${colors.white};
 `;
 const Title = styled.Text`
   color: ${colors.black};

@@ -6,11 +6,10 @@ interface ImageItems {
   height: string | number;
   url: string;
 }
-const ImageCard: FC<ImageItems> = ({width, height, url}) => {
-  console.log(width, height, url);
-
+const ImageCard: FC<ImageItems> = props => {
+  const {width, height, url} = props;
   return (
-    <ImageContainer width={width} height={height}>
+    <ImageContainer width={width} height={height} {...props}>
       <ImgView source={{uri: url}} />
     </ImageContainer>
   );
