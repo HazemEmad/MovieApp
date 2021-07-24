@@ -17,8 +17,8 @@ const ImageCard: FC<ImageItems> = ({width, height, url, ...props}) => {
   );
 };
 const ImageContainer = styled.View`
-  width: ${props => props.width};
-  height: ${props => props.height};
+  width: ${(props: ImageItems) => props.width};
+  height: ${(props: ImageItems) => props.height};
   background-color: ${colors.gray};
   margin-right: 8px;
 `;

@@ -5,16 +5,20 @@ import ImageCard from './imageCard';
 import Genre from './genre';
 import {get} from 'lodash';
 
+interface Genres {
+  name: string;
+  id: number;
+}
 interface FilmItem {
   navigation: any;
   title: string;
   releaseDate: string;
   rate: number;
   image: string;
-  overview:string;
-  id:number;
+  overview: string;
+  id: number;
   movieGenres: [];
-  allGenres: object;
+  allGenres: Genres[];
 }
 const FilmCard: FC<FilmItem> = ({
   navigation,
@@ -27,22 +31,29 @@ const FilmCard: FC<FilmItem> = ({
   movieGenres,
   allGenres,
 }) => {
-  const [genres, setGenres] = useState([]);
+  const [genres, setGenres] = useState<string[]>([]);
   function getGenres(): void {
-    var myGenres = [];
+    var myGenres: string[] = [];
     movieGenres.map(genre => {
       let i = allGenres.findIndex(obj => get(obj, 'id') == genre);
-      myGenres.push(allGenres.[i].name);
+      myGenres.push(allGenres[i].name);
     });
     setGenres(myGenres);
   }
   useEffect(() => {
     getGenres();
   }, []);
-  function navigate():void{
-    navigation.navigate('Movie',{image:image,title:title,rate:rate,overview:overview,genres:genres,id:id})
+  function navigate(): void {
+    navigation.navigate('Movie', {
+      image: image,
+      title: title,
+      rate: rate,
+      overview: overview,
+      genres: genres,
+      id: id,
+    });
   }
-  const date=new Date(releaseDate)
+  const date = new Date(releaseDate);
   return (
     <ContainerCard onPress={navigate}>
       <ImageCard width={'90px'} height={'100px'} url={image} />

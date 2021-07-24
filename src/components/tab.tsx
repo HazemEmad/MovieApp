@@ -14,8 +14,9 @@ const Tab: FC<TabsItem> = ({selected, title, onPress}) => {
   );
 };
 const Touchable = styled.TouchableOpacity`
-  background-color: ${props => (props.selected ? colors.green : colors.gray)};
-  elevation:${props => (props.selected ? 5 : 0)}
+  background-color: ${(props: TabsItem) =>
+    props.selected ? colors.green : colors.gray};
+  elevation:${(props: TabsItem) => (props.selected ? 5 : 0)}
   width: 32%;
   height: 30px;
   border-radius: 20px;
@@ -24,7 +25,7 @@ const Touchable = styled.TouchableOpacity`
   margin-vertical: 10px;
 `;
 const Text = styled.Text`
-  color: ${props => (props.selected ? colors.white : colors.black)};
+  color: ${(props: TabsItem) => (props.selected ? colors.white : colors.black)};
   font-weight: bold;
 `;
 export default Tab;

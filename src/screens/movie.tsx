@@ -10,13 +10,15 @@ import {get} from 'lodash';
 import {BASE_URL, GET_CREDITS, API_KEY} from '../constants/urls';
 
 interface MovieItem {
-  props: any;
+  navigation: object;
+  route: object;
 }
+
 const Movie: FC<MovieItem> = props => {
   const {navigation, route} = props;
   const {title, genres, image, overview, rate, id} = get(route, 'params');
 
-  const [credits, setCredits] = useState([]);
+  const [credits, setCredits] = useState<object[]>([]);
   function getCredits(): void {
     fetch(`${BASE_URL + GET_CREDITS.replace('id', id) + API_KEY}`)
       .then(response => response.json())
