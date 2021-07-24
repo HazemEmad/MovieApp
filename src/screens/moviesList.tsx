@@ -74,8 +74,7 @@ const MovieList: FC = props => {
     getMovies(tap, 1);
   }
   function _onRefresh(): void {
-    setPage(1);
-    getMovies(selectedTab, 1);
+    getMovies(selectedTab, page);
   }
   function changeCurrPage(addOrMinus: boolean): void {
     changePage(addOrMinus);

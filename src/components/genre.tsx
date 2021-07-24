@@ -14,7 +14,7 @@ const Genre: FC<GenreItems> = ({title}) => {
 const ContainerGenre = styled.View`
   background-color: ${colors.gray};
   padding-vertical: 3px;
-  padding-horizontal:8px;
+  padding-horizontal: 8px;
   border-radius: 20px;
   justify-content: center;
   align-items: center;

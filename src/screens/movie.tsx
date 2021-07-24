@@ -17,13 +17,14 @@ interface MovieItem {
 const Movie: FC<MovieItem> = props => {
   const {navigation, route} = props;
   const {title, genres, image, overview, rate, id} = get(route, 'params');
-
+  const [load, setLoad] = useState<boolean>(true);
   const [credits, setCredits] = useState<object[]>([]);
   function getCredits(): void {
     fetch(`${BASE_URL + GET_CREDITS.replace('id', id) + API_KEY}`)
       .then(response => response.json())
       .then(json => setCredits([...get(json, 'cast'), ...get(json, 'crew')]))
-      .catch(e => console.log(e));
+      .catch(e => console.log(e))
+      .finally(() => setLoad(false));
   }
   useEffect(() => {
     let isSubscribed: boolean = true;
@@ -70,7 +71,9 @@ const Movie: FC<MovieItem> = props => {
                 />
               ))
             ) : (
-              <NotFoundText>Not Found Credits!</NotFoundText>
+              <NotFoundText>
+                {load ? 'Loading...' : 'Not Found Credits!'}
+              </NotFoundText>
             )}
           </ScrollView>
         </SubContainer>
@@ -122,6 +125,7 @@ const GenresContainer = styled.View`
 const NotFoundText = styled.Text`
   color: ${colors.Obacityblack1};
   font-weight: bold;
+  margin-top: 5px;
 `;
 
 export default Movie;
