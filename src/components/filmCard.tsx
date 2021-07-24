@@ -20,56 +20,59 @@ interface FilmItem {
   movieGenres: [];
   allGenres: Genres[];
 }
-const FilmCard: FC<FilmItem> = ({
-  navigation,
-  title,
-  releaseDate,
-  rate,
-  image,
-  overview,
-  id,
-  movieGenres,
-  allGenres,
-}) => {
-  const [genres, setGenres] = useState<string[]>([]);
-  function getGenres(): void {
+class FilmCard extends React.Component<FilmItem> {
+  constructor(props: FilmItem) {
+    super(props);
+  }
+  state = {genres: []};
+  getGenres(): void {
     var myGenres: string[] = [];
-    movieGenres.map(genre => {
-      let i = allGenres.findIndex(obj => get(obj, 'id') == genre);
-      myGenres.push(allGenres[i].name);
+    this.props.movieGenres.map(genre => {
+      let i = this.props.allGenres.findIndex(obj => get(obj, 'id') == genre);
+      myGenres.push(get(this.props.allGenres, [i, 'name'], 'no name!'));
     });
-    setGenres(myGenres);
-  }
-  useEffect(() => {
-    getGenres();
-  }, []);
-  function navigate(): void {
-    navigation.navigate('Movie', {
-      image: image,
-      title: title,
-      rate: rate,
-      overview: overview,
-      genres: genres,
-      id: id,
+    this.setState({
+      genres: myGenres,
     });
   }
-  const date = new Date(releaseDate);
-  return (
-    <ContainerCard onPress={navigate}>
-      <ImageCard width={'90px'} height={'100px'} url={image} />
-      <FilmAbout>
-        <MovieTitle>{title}</MovieTitle>
-        <MovieRelease>{date.toDateString()}</MovieRelease>
-        <GenresContainer>
-          {genres.map((genre, index) => (
-            <Genre key={index} title={genre} />
-          ))}
-        </GenresContainer>
-      </FilmAbout>
-      <MovieRate>{rate}%</MovieRate>
-    </ContainerCard>
-  );
-};
+
+  componentDidMount() {
+    this.getGenres();
+  }
+  navigate(): void {
+    this.props.navigation.navigate('Movie', {
+      image: this.props.image,
+      title: this.props.title,
+      rate: this.props.rate,
+      overview: this.props.overview,
+      genres: this.state.genres,
+      id: this.props.id,
+    });
+  }
+
+  getFormatedDate(date: string): string {
+    return new Date(date).toDateString();
+  }
+  render() {
+    return (
+      <ContainerCard onPress={this.navigate.bind(this)}>
+        <ImageCard width={'90px'} height={'100px'} url={this.props.image} />
+        <FilmAbout>
+          <MovieTitle>{this.props.title}</MovieTitle>
+          <MovieRelease>
+            {this.getFormatedDate(this.props.releaseDate)}
+          </MovieRelease>
+          <GenresContainer>
+            {this.state.genres.map((genre, index) => (
+              <Genre key={index} title={genre} />
+            ))}
+          </GenresContainer>
+        </FilmAbout>
+        <MovieRate>{this.props.rate}%</MovieRate>
+      </ContainerCard>
+    );
+  }
+}
 const ContainerCard = styled.TouchableOpacity`
   background-color: ${colors.white};
   elevation: 4;
